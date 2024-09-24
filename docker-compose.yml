@@ -1,0 +1,28 @@
+services:
+  #viene de .properties name
+  todo-app:
+    build: .   # Ruta al Dockerfile o carpeta de proyecto
+    platform: linux/amd64  # Forzar a construir para arquitectura amd64
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://todo_db:3306/mydatabase?createDatabaseIfNotExist=true&serverTimezone=UTC
+      DB_USER_NAME: root
+      DB_PASSWORD: 1234
+    restart: always
+    depends_on:
+      todo_db:
+        condition: service_healthy
+  todo_db:
+    image: mysql:8.0.33
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_PASSWORD: 1234
+      MYSQL_DATABASE: mydatabase
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
